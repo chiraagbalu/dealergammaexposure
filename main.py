@@ -1,5 +1,9 @@
 import datetime
 import tda
+import numpy as np
+import scipy
+from scipy.stats import norm
+import matplotlib.pyplot as plt
 import pandas as pd
 from tda import auth, client
 from tda.orders.equities import equity_buy_limit, equity_buy_market, equity_sell_limit, equity_sell_market
@@ -52,5 +56,28 @@ ocdf[['putCall', 'symbol', 'description', 'bid', 'ask', 'last', 'mark',
        'intrinsicValue', 'inTheMoney']]
 # #ocdf.drop(['exchangeName', 'bidSize', 'askSize', 'tradeTimeInLong', 'quoteTimeInLong', 'rho', 'optionDeliverablesList', 'multiplier', 'settlementType', 'deliverableNote', 'isIndexOption', 'nonStandard', 'pennyPilot','mini'], axis='columns', inplace=True)
 print(ocdf.columns)
+
+#calculating gamma using black-scholes equation
+#S = underlying spot price
+#K = strike price
+#vol = implied volatility
+#T = time until expiration
+#r = risk free interest rate
+#q = dividend yield
+#OI = open interest
+#credit to wikipedia for the equation
+
+def calcGamma(S, K, vol, T, r, q, OI):
+    #we have T and vol in denominator so if its 0 we need to screen for that - gamma will be 0 if either are 0
+    if T == 0 or vol == 0:
+        return 0
+    #black scholes equation to find d1
+    d1 = (1/vol*(np.sqrt(T)))*(np.log(S/K) + (r-q+(0.5*vol**2))*(T))
+    #calculating gamma from d1
+    gamma = norm.pdf(d1)/(S*vol*np.sqrt(T))
+    return gamma
+
+def calcGammaExposure(S, K, vol, T, r, q, OI):
+    return calcGamma(S, K, vol, T, r, q, OI) * 100 * OI * (S**2) * 0.01
 
 

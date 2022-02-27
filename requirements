@@ -1,4 +1,12 @@
+modules:
 tda-api
 selenium
 datetime
 pandas
+scipy
+matplotlib
+
+you'll also want to add a config.py file that contains:
+api_key = ''
+callback_uri = ''
+token_path = ''
