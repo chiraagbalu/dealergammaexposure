@@ -16,8 +16,8 @@ puts are a contract giving the owner the right to sell 100 shares at a strike pr
 how much do they cost?
 it depends.
 let's start by analyzing option cost at expiration - its the easiest to understand.
-at expiration, a call option that has a strike price less than the value of its underlying security will turn a profit
-if exercised.
+at expiration, if an underlying security is higher than the value of the call option's strike price, the option will
+turn a profit if exercised.
 for example, a 200 strike call for a security trading 210 at expiration would give the right to buy 10 dollars under
 market price.
 if this right is exercised, the shares can be resold to the market at market price.
@@ -135,6 +135,12 @@ price. for every option.
 yay.
 for this, we get to use the famous financial engineering equation - Black-Scholes.
 Black-Scholes is basically just a mathematical equation for pricing options - we covered its factors earlier.
+its a differential equation, so we solve for gamma and compute it (won't go into math just trust me and by extension
+wikipedia)
+putting all of the gamma exposures at each price for each strike gives us a full picture of the gamma profile for
+each expiration date, we did it!
+
+
 
 risk free interest rate (10y yield): 1.97%
 

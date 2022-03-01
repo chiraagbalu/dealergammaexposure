@@ -46,16 +46,14 @@ for put_call in ['callExpDateMap', 'putExpDateMap']:
 option_chain_df = pd.DataFrame(option_chain_dict)
 #keep original, work with easy name
 ocdf = option_chain_df.copy(deep=False)
-ocdf[['putCall', 'symbol', 'description', 'bid', 'ask', 'last', 'mark',
-       'bidAskSize', 'lastSize', 'highPrice', 'lowPrice', 'openPrice',
-       'closePrice', 'totalVolume', 'tradeDate', 'netChange', 'volatility',
-       'delta', 'gamma', 'theta', 'vega', 'openInterest', 'timeValue',
-       'theoreticalOptionValue', 'theoreticalVolatility', 'strikePrice',
-       'expirationDate', 'daysToExpiration', 'expirationType',
-       'lastTradingDay', 'percentChange', 'markChange', 'markPercentChange',
-       'intrinsicValue', 'inTheMoney']]
-# #ocdf.drop(['exchangeName', 'bidSize', 'askSize', 'tradeTimeInLong', 'quoteTimeInLong', 'rho', 'optionDeliverablesList', 'multiplier', 'settlementType', 'deliverableNote', 'isIndexOption', 'nonStandard', 'pennyPilot','mini'], axis='columns', inplace=True)
-print(ocdf.columns)
+quote = c.get_quotes(trade_symbol)
+
+#using 10 year yield as risk free rate
+riskFreeRate = c.get_quotes('/10Y')
+gammadf = ocdf[['putCall', 'symbol', 'last', 'totalVolume', 'volatility', 'openInterest', 'strikePrice', 'daysToExpiration']]
+print(quote)
+print(gammadf.columns)
+
 
 #calculating gamma using black-scholes equation
 #S = underlying spot price
@@ -67,7 +65,10 @@ print(ocdf.columns)
 #OI = open interest
 #credit to wikipedia for the equation
 
-def calcGamma(S, K, vol, T, r, q, OI):
+#assume dividend is 0
+#assume risk free interest rate is the 10y yield rate
+
+def calcGamma(S, K, vol, T, r, q):
     #we have T and vol in denominator so if its 0 we need to screen for that - gamma will be 0 if either are 0
     if T == 0 or vol == 0:
         return 0
@@ -78,6 +79,7 @@ def calcGamma(S, K, vol, T, r, q, OI):
     return gamma
 
 def calcGammaExposure(S, K, vol, T, r, q, OI):
-    return calcGamma(S, K, vol, T, r, q, OI) * 100 * OI * (S**2) * 0.01
+    return calcGamma(S, K, vol, T, r, q) * 100 * OI * (S**2) * 0.01
+
 
 
