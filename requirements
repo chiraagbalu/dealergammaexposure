@@ -5,6 +5,7 @@ datetime
 pandas
 scipy
 matplotlib
+asyncio
 
 you'll also want to add a config.py file that contains:
 api_key = ''
