@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import tda
 import numpy as np
 import scipy
@@ -10,6 +10,7 @@ from tda.orders.equities import equity_buy_limit, equity_buy_market, equity_sell
 from tda.orders.common import Duration, Session
 import json
 import config
+import asyncio
 
 #set up client!
 try:
@@ -46,13 +47,16 @@ for put_call in ['callExpDateMap', 'putExpDateMap']:
 option_chain_df = pd.DataFrame(option_chain_dict)
 #keep original, work with easy name
 ocdf = option_chain_df.copy(deep=False)
-quote = c.get_quotes(trade_symbol)
 
 #using 10 year yield as risk free rate
 riskFreeRate = c.get_quotes('/10Y')
 gammadf = ocdf[['putCall', 'symbol', 'last', 'totalVolume', 'volatility', 'openInterest', 'strikePrice', 'daysToExpiration']]
-print(quote)
-print(gammadf.columns)
+
+startdate = dt.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+previousstartdate = startdate - dt.timedelta(days=1)
+symbolCandles = c.get_price_history(trade_symbol, start_datetime=(dt.datetime.now()-dt.timedelta(days=1)), need_extended_hours_data=False).json()
+spot = symbolCandles['candles'][-1]['close']
+
 
 
 #calculating gamma using black-scholes equation
