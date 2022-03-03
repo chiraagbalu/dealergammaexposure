@@ -24,8 +24,13 @@ except FileNotFoundError:
             driver, config.api_key, config.redirect_uri, config.token_path)
 
 acct_id = 123456789
+
+#getting data
 #some index trade symbols are funky - use $SPX.X for SPX, etc
 trade_symbol = '$SPX.X'
+symbolCandles = c.get_price_history(trade_symbol, start_datetime=(dt.datetime.now()-dt.timedelta(days=1)), need_extended_hours_data=False).json()
+#get last spot price
+spot = symbolCandles['candles'][-1]['close']
 
 #we're going to make a dataframe of the options chain to make it easier to access certain values
 option_chain_dict = []
@@ -47,17 +52,10 @@ for put_call in ['callExpDateMap', 'putExpDateMap']:
 option_chain_df = pd.DataFrame(option_chain_dict)
 #keep original, work with easy name
 ocdf = option_chain_df.copy(deep=False)
-
-#using 10 year yield as risk free rate
-riskFreeRate = c.get_quotes('/10Y')
-gammadf = ocdf[['putCall', 'symbol', 'last', 'totalVolume', 'volatility', 'openInterest', 'strikePrice', 'daysToExpiration']]
-
-startdate = dt.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-previousstartdate = startdate - dt.timedelta(days=1)
-symbolCandles = c.get_price_history(trade_symbol, start_datetime=(dt.datetime.now()-dt.timedelta(days=1)), need_extended_hours_data=False).json()
-spot = symbolCandles['candles'][-1]['close']
-
-
+#get the columns we actually need
+gammadf = ocdf[['putCall', 'symbol', 'last', 'totalVolume', 'volatility', 'openInterest', 'strikePrice', 'daysToExpiration', 'expirationDate']]
+#format expiration dates correctly
+gammadf['expirationDate'] = pd.to_datetime(gammadf['expirationDate'],unit='ms')
 
 #calculating gamma using black-scholes equation
 #S = underlying spot price
@@ -70,7 +68,8 @@ spot = symbolCandles['candles'][-1]['close']
 #credit to wikipedia for the equation
 
 #assume dividend is 0
-#assume risk free interest rate is the 10y yield rate
+#assume risk free interest rate is 2%
+riskFreeRate = 0.02
 
 def calcGamma(S, K, vol, T, r, q):
     #we have T and vol in denominator so if its 0 we need to screen for that - gamma will be 0 if either are 0
