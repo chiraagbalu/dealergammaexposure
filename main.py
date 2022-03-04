@@ -28,10 +28,10 @@ acct_id = 123456789
 #getting data
 #some index trade symbols are funky - use $SPX.X for SPX, etc
 trade_symbol = '$SPX.X'
-symbolCandles = c.get_price_history(trade_symbol, start_datetime=(dt.datetime.now()-dt.timedelta(days=1)), need_extended_hours_data=False).json()
+symbolCandles = c.get_price_history(trade_symbol, start_datetime=(dt.datetime.now()-dt.timedelta(days=2)), need_extended_hours_data=False).json()
 #get last spot price
 spot = symbolCandles['candles'][-1]['close']
-
+print(spot)
 #we're going to make a dataframe of the options chain to make it easier to access certain values
 option_chain_dict = []
 query = c.get_option_chain(trade_symbol).json()
@@ -53,8 +53,7 @@ option_chain_df = pd.DataFrame(option_chain_dict)
 #keep original, work with easy name
 ocdf = option_chain_df.copy(deep=False)
 #get the columns we actually need
-allstrikegammadf = ocdf[['putCall', 'symbol', 'gamma', 'openInterest', 'strikePrice', 'daysToExpiration', 'expirationDate']]
-
+allstrikegammadf = ocdf[['putCall', 'symbol', 'strikePrice', 'gamma', 'totalVolume',  'openInterest',  'daysToExpiration', 'expirationDate']]
 #sort to strikes within 10% of spot price
 gammadf = allstrikegammadf[allstrikegammadf['strikePrice'].between(spot*0.9, spot*1.1)]
 
@@ -82,10 +81,39 @@ gammadf['putGEX'] = gammadf['RAWputGEX'] * 0.01 * spot
 #calculating totalGEX per 1% move in underlying
 gammadf['totalGEX'] = (gammadf['callGEX'].fillna(0) + gammadf['putGEX'].fillna(0))
 totalGEX = gammadf['totalGEX'].sum()
+print('total GEX = {:,}'.format(totalGEX))
+
 
 #sorting by strike
 strikeGammas = gammadf.groupby(['strikePrice']).sum()
-print(strikeGammas.sort_values(by='openInterest', ascending=False))
+#print(strikeGammas.sort_values(by='openInterest', ascending=False))
+
+nearestExp = gammadf[gammadf['daysToExpiration'] == gammadf['daysToExpiration'].min()]
+nearestExp = nearestExp[['strikePrice', 'openInterest', 'gamma', 'totalVolume']]
+nearestEXP = nearestExp[(nearestExp != 0).all(1)]
+nearestByOI = nearestExp.sort_values(by='openInterest', ascending=False)
+nearestByGamma = nearestExp.sort_values(by='gamma', ascending=False)
+nearestByVolume = nearestExp.sort_values(by='totalVolume', ascending=False)
+topOI = nearestByOI[:3]
+topGamma = nearestByGamma[:3]
+topVolume = nearestByVolume[:3]
+print('top Open Interest Strikes')
+print('strike: ')
+print(topOI['strikePrice'].to_string(index=False))
+print('oi: ')
+print(topOI['openInterest'].to_string(index=False))
+print('top Gamma Strikes')
+print('strikes: ')
+print(topGamma['strikePrice'].to_string(index=False))
+print('gamma: ')
+print(topGamma['gamma'].to_string(index=False))
+print('top Volume Strikes')
+print('strike: ')
+print(topVolume['strikePrice'].to_string(index=False))
+print('volume: ')
+print(topVolume['totalVolume'].to_string(index=False))
+
+#print(nearestExp['daysToExpiration'])
 
 
 #calculating gamma using black-scholes equation
