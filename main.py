@@ -53,10 +53,10 @@ option_chain_df = pd.DataFrame(option_chain_dict)
 #keep original, work with easy name
 ocdf = option_chain_df.copy(deep=False)
 #get the columns we actually need
-gammadf = ocdf[['putCall', 'symbol', 'last', 'totalVolume', 'volatility', 'openInterest', 'strikePrice', 'daysToExpiration', 'expirationDate']]
-#format expiration dates correctly
-gammadf['expirationDate'] = pd.to_datetime(gammadf['expirationDate'],unit='ms')
-
+gammadf = ocdf[['putCall', 'symbol', 'last', 'totalVolume', 'volatility', 'gamma', 'openInterest', 'strikePrice', 'daysToExpiration', 'expirationDate']]
+calldf = gammadf.loc[gammadf.putCall == 'CALL']
+putdf = gammadf.loc[gammadf.putCall == 'PUT']
+print(putdf)
 #calculating gamma using black-scholes equation
 #S = underlying spot price
 #K = strike price
