@@ -53,10 +53,41 @@ option_chain_df = pd.DataFrame(option_chain_dict)
 #keep original, work with easy name
 ocdf = option_chain_df.copy(deep=False)
 #get the columns we actually need
-gammadf = ocdf[['putCall', 'symbol', 'last', 'totalVolume', 'volatility', 'gamma', 'openInterest', 'strikePrice', 'daysToExpiration', 'expirationDate']]
+allstrikegammadf = ocdf[['putCall', 'symbol', 'gamma', 'openInterest', 'strikePrice', 'daysToExpiration', 'expirationDate']]
+
+#sort to strikes within 10% of spot price
+gammadf = allstrikegammadf[allstrikegammadf['strikePrice'].between(spot*0.9, spot*1.1)]
+
 calldf = gammadf.loc[gammadf.putCall == 'CALL']
 putdf = gammadf.loc[gammadf.putCall == 'PUT']
-print(putdf)
+
+#making things floats for calculation
+calldf['gamma'] = calldf['gamma'].astype(float)
+calldf['openInterest'] = calldf['openInterest'].astype(float)
+putdf['gamma'] = putdf['gamma'].astype(float)
+putdf['openInterest'] = putdf['openInterest'].astype(float)
+
+#calculating raw gamma exposure for all calls
+gammadf['RAWcallGEX'] = calldf['gamma'] * calldf['openInterest'] * spot * 100
+
+#calculating callGEX per 1% move in underlying
+gammadf['callGEX'] = gammadf['RAWcallGEX'] * 0.01 * spot
+
+#calculating raw gamma exposure for all puts
+gammadf['RAWputGEX'] = putdf['gamma'] * putdf['openInterest'] * spot * 100 * -1
+
+#calculating putGEX per 1% move in underlying
+gammadf['putGEX'] = gammadf['RAWputGEX'] * 0.01 * spot
+
+#calculating totalGEX per 1% move in underlying
+gammadf['totalGEX'] = (gammadf['callGEX'].fillna(0) + gammadf['putGEX'].fillna(0))
+totalGEX = gammadf['totalGEX'].sum()
+
+#sorting by strike
+strikeGammas = gammadf.groupby(['strikePrice']).sum()
+print(strikeGammas.sort_values(by='openInterest', ascending=False))
+
+
 #calculating gamma using black-scholes equation
 #S = underlying spot price
 #K = strike price
