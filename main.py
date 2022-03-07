@@ -27,7 +27,9 @@ acct_id = 123456789
 
 #getting data
 #some index trade symbols are funky - use $SPX.X for SPX, etc
-trade_symbol = '$SPX.X'
+tradesymbolSPX = '$SPX.X'
+print('input the symbol you want gamma exposure +_option levels for!')
+trade_symbol = input()
 symbolCandles = c.get_price_history(trade_symbol, start_datetime=(dt.datetime.now()-dt.timedelta(days=2)), need_extended_hours_data=False).json()
 #get last spot price
 spot = symbolCandles['candles'][-1]['close']
