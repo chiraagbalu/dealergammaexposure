@@ -20,7 +20,7 @@ prices.
 
 how does dealer hedging work?
 
-initial hedge:
+how dealers initially hedge:
 when dealers buy and sell options, they want their positions to be profitable.
 however, they don't typically like to expose themselves to directional risk of a security, or how it's price movement
 changes the option price.
@@ -30,11 +30,12 @@ as such, a 45 delta option basically has the same movement as 45 shares of the u
 to offset this directional risk, a dealer can short/buy shares based on delta and remain neutral.
 this process is known as delta hedging.
 
-hedging flow:
+how dealers change their hedges over time:
 delta does not stay the same throughout the life of an option.
 this means that option dealers need to continually adjust their hedges.
 delta changes mainly due to volatility, time, and the price of the underlying.
 the change in delta based on the change in underlying is known as gamma.
 exposure to gamma is one of the key factors that cause options dealers to re-hedge their positions.
-when gamma is high, they need to buy and sell more shares than when gamma is lower, leading to the effects from above.
+when gamma is high, they need to buy and sell more shares than when gamma is lower, leading to the described effects.
+
 
