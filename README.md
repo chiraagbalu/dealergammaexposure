@@ -9,7 +9,7 @@ in this project, we will determine the total gamma exposure for a selected secur
 currently debugging some symbols, definitely works for $SPX.X
 
 
-##what is gamma exposure?
+## what is gamma exposure?
 
 
 gamma exposure (GEX) is the amount of hedging that option market makers have to do on a symbol.
@@ -19,7 +19,7 @@ generally speaking, GEX (gamma exposure) is always positive, so new flows help s
 however, when GEX is relatively high, this stabilizing effect is stronger and compresses volatility.
 when GEX is relatively low, dealers don't stabilize the market as much, allowing for larger swings in price.
 
-##how does dealer hedging work?
+## how does dealer hedging work?
 
 
 how dealers initially hedge:
@@ -41,7 +41,7 @@ exposure to gamma is one of the key factors that cause options dealers to re-hed
 when gamma is high, they need to buy and sell more shares than when gamma is lower, leading to the described effects.
 
 
-##how are the levels determined?
+## how are the levels determined?
 
 
 we take the option chain for the selected security, and look for the top 3 strikes for open interest, gamma, and volume.
