@@ -1,5 +1,7 @@
-create a config.py file with the necessary variables to run this
+# instructions
+## create a config.py file with the necessary variables to run this
 
+# description/explanation
 in this project, we will determine the total gamma exposure for a selected security - and finding some important levels
 currently debugging some symbols, definitely works for $SPX.X
 
