@@ -1,5 +1,6 @@
 # instructions
 ## create a config.py file with the necessary variables to run this
+- config.api_key, config.redirect_uri, config.token_path)
 
 # description/explanation
 in this project, we will determine the total gamma exposure for a selected security - and finding some important levels
